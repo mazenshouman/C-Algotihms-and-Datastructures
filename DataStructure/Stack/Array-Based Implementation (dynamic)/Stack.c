@@ -29,7 +29,7 @@ status pushToStack(stack_t * stack , StackDataType_t data){
         currentStatus = E_NOT_OK;
     }else{
         /*check for the overflow*/
-        if((stack -> stackPointer !=NULL) && (stack ->stackPointer == stack ->top)){
+        if(stack ->stackPointer == stack ->top){
             currentStatus = STACK_OVERFLOW;
         }else{
             /*check if the stack is empty*/
