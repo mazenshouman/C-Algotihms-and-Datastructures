@@ -49,6 +49,7 @@ stackStatus_t push(Stack_s* stack  , dataEntry_t* data){
     else{
       pTempNode -> data = *data; 
       pTempNode -> nextNode = stack -> stackTop;
+      stack -> stackTop = pTempNode;
       ++stack -> size;
     }
   }
