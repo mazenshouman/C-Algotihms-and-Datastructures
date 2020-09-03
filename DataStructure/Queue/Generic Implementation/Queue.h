@@ -1,16 +1,17 @@
 /*
- *  File 	   : Stack.h
- *  Created on : Jun 9, 2020
+ *  File 	   : Queue.h
+ *  Created on : May  9, 2020
  *  Author	   : Mazen Shouman
  *  Version    : 1.0
  */
 
-#ifndef __STACK__
-#define __STACK__
+#ifndef __QUEUE__
+#define __QUEUE__
 
 /************************************************************************
  *                       File Inclusion                                 *
  ************************************************************************/
+
 
 /* I used this defines as there is no stdtype file here */
 #ifndef __TYPES__
@@ -19,43 +20,103 @@ typedef signed char sint8;
 typedef unsigned short uint16;
 #endif
 
-#include "stack_Cfg.h"
+#include "Queue_Cfg.h"
 
 /************************************************************************
  *                       Macros And Types                               *
  ************************************************************************/
 
+/************************************
+ *           Error  macros          *
+ ***********************************/
+
+typedef uint8 Queue_ErrorType;
+#define QUEUE_E_NOT_OK             (Queue_ErrorType)0                    
+#define QUEUE_E_OK                 (Queue_ErrorType)1
+#define QUEUE_NULL_POINTER         (Queue_ErrorType)2
+#define QUEUE_UNDERFLOW            (Queue_ErrorType)3
+#define QUEUE_OVERFLOW             (Queue_ErrorType)4
+
 
 /************************************
  *          Status  macros          *
  ***********************************/
-typedef uint8 stackStatus_t;
-#define STACK_UNDERFLOW       (stackStatus_t)0
-#define STACK_OVERFLOW        (stackStatus_t)1
-#define STACK_NULL_POINTER    (stackStatus_t)2
-#define STACK_E_OK            (stackStatus_t)3
-#define STACK_E_NOT_OK        (stackStatus_t)4
 
+/* used for is _empty and is_full function */
+typedef uint8 Queue_StatusType;
+#define QUEUE_EMPTY                (Queue_StatusType)0
+#define QUEUE_NOT_EMPTY            (Queue_StatusType)1
+#define QUEUE_FULL                 (Queue_StatusType)2
+#define QUEUE_NOT_FULL             (Queue_StatusType)3
 
 
 /************************************
  *          Pointer to Function     *
  ***********************************/
 
-/* used in traverse queue to apply operation on all elements of the stack */
-typedef void (*functionPtr)(dataEntry_t* data);
+/* used in traverse queue to apply operation on all elements of the queue */
+typedef void(*ptrToFunction)(Queue_DataType* element);
 
-#define STACK_EMPTY           (stackSize_t)0
 
 /************************************
- *          Stack structure         *
+ *          Queue structure         *
  ***********************************/
 
-typedef struct stack{
-	dataEntry_t stackBuffer[STACK_MAX_SIZE];
-	stackSize_t stackTop;
-}Stack_s;
+typedef struct Queue{
+    Queue_DataType  Queue_Buffer[QUEUE_MAX_SIZE];
+    Queue_SizeType  Queue_Front;
+    Queue_SizeType  Queue_Rear;
+    Queue_SizeType  Queue_CurrentSize;
+}Queue_s; 
 
+/*------------------------------------------------------------------------------------------------------*/
+
+/*******************************************
+ *    Datatype Selection  macros           *
+ *******************************************/
+
+/************************************
+ *         Static Multitype         *
+ ***********************************/
+#ifdef QUEUE_STATIC_DIFFERENT_DATATYPES
+
+/*can add some macros to simplifing the way that the user determmines which member of the struct 
+  will be used for this element (in case of enqueue or deqeue) (used for for static mutitype implementation)
+*/
+
+#define QUEUE_ELEMENT_DIGIT     1
+#define QUEUE_ELEMENT_SIGN      2
+#define QUEUE_ELEMENT_VALUE     3
+
+#endif
+/*------------------------------------------------------------------------------------------------------*/
+/************************************
+ *      Dynamic Array Multitype     *
+ ***********************************/
+
+
+#ifdef QUEUE_DYNAMIC_ARRAY_DIFFERENT_DATATYPES
+
+/*can add some macros to simplifing the way that the user determmines which element will be dequeued
+   and 
+*/
+
+/* this an example you need to move it to the main file for the file which you will create the queue */
+
+#if 0
+
+/*size is 1 byte and element 0 with this size*/
+#define QUEUE_ELEMENT_DIGIT     1
+/*size is 2 byte and element 0 with this size*/
+#define QUEUE_ELEMENT_VALUE     2
+/*size is 1 byte and element 1 with this size(0b00010001)*/
+#define QUEUE_ELEMENT_SIGN      17
+
+#endif
+
+#endif
+
+/*------------------------------------------------------------------------------------------------------*/
 
 /************************************************************************/
 
@@ -64,56 +125,57 @@ typedef struct stack{
  ************************************************************************/
 
 /**************************************************************************************************************************************
- *  Function : createStack                                                                                                            *
- *  Param    : IN     : Name / Stack                                                                                                  *
- *                      Type / Stack_s*                                                                                               *
+ *  Function : Queue_Create                                                                                                           *
+ *  Param    : IN     : Name / Queue                                                                                                  *
+ *                      Type / Queue_s*                                                                                               *
  *                      Desc / takes address of the created structure from the caller function                                        *
  *                                                                                                                                    *
  *             Output : Name / none                                                                                                   *
  *                                                                                                                                    *
- *  Return   : stackStatus_t                                                                                                          *
+ *  Return   : Queue_ErrorType                                                                                                        *
  *                                                                                                                                    *
  *                                                                                                                                    *
- *  Desc     : This function initialize the Stack with the initial values                                                             *
+ *  Desc     : This function initialize the Queue with the initial values                                                             *
  *                                                                                                                                    *
  *                                                                                                                                    *
  *                                                                                                                                    *
  *************************************************************************************************************************************/
 
-stackStatus_t createStack(Stack_s* Stack);
+Queue_ErrorType Queue_Create(Queue_s* Queue);
 
 /**************************************************************************************************************************************
- *  Function : pop                                                                                                                    *
- *  Param    : IN     : Name / stack                                                                                                  *
- *                      Type / Stack_s*                                                                                               *
+ *  Function : Queue_Enqueue                                                                                                          *
+ *  Param    : IN     : Name / Queue                                                                                                  *
+ *                      Type / Queue_s*                                                                                               *
  *                      Desc / takes address of the created structure from the caller function                                        *
- *           : Output  : Name / data                                                                                                  *
- *                      Type / dataEntry_t*                                                                                           *
- *                      Desc / takes the address of the variable which the data will be assigned to it                                *
+ *           : IN     : Name / data                                                                                                   *
+ *                      Type / Queue_DataType*                                                                                        *
+ *                      Desc / takes the data wanted to be enqueued                                                                   *
+ *                                                                                                                                    *
+ *             Output : Name / none                                                                                                   *
+ *                                                                                                                                    *
+ *  Return   : Queue_ErrorType                                                                                                        *
  *                                                                                                                                    *
  *                                                                                                                                    *
- *  Return   : stackStatus_t                                                                                                          *
- *                                                                                                                                    *
- *                                                                                                                                    *
- *  Desc     : This function remove element for the top of the stack                                                                  *
+ *  Desc     : This function enqueue element in the rear of the queue                                                                 *
  *                                                                                                                                    *
  *                                                                                                                                    *
  *                                                                                                                                    *
  *************************************************************************************************************************************/
 
-stackStatus_t pop(Stack_s* stack  , dataEntry_t* data);
+Queue_ErrorType Queue_Enqueue(Queue_s* Queue , Queue_DataType* data);
 
 /**************************************************************************************************************************************
- *  Function : push                                                                                                                   *
- *  Param    : IN     : Name / stack                                                                                                  *
- *                      Type / Stack_s*                                                                                               *
+ *  Function : Queue_Dequeue                                                                                                          *
+ *  Param    : IN     : Name / Queue                                                                                                  *
+ *                      Type / Queue_s*                                                                                               *
  *                      Desc / takes address of the created structure from the caller function                                        *
  *                                                                                                                                    *
  *             Output : Name / data                                                                                                   *
- *                      Type / dataEntry_t*                                                                                           *
- *                      Desc / takes the data wanted to be inserted to the top of the stack                                           *
+ *                      Type / Queue_DataType*                                                                                        *
+ *                      Desc / takes the data wanted to be enqueued                                                                   *
  *                                                                                                                                    *
- *  Return   : stackStatus_t                                                                                                          *
+ *  Return   : Queue_ErrorType                                                                                                        *
  *                                                                                                                                    *
  *                                                                                                                                    *
  *  Desc     : This function dequeue element from the front of the queue                                                              *
@@ -122,61 +184,96 @@ stackStatus_t pop(Stack_s* stack  , dataEntry_t* data);
  *                                                                                                                                    *
  *************************************************************************************************************************************/
 
-stackStatus_t push(Stack_s* stack  , dataEntry_t* data);
+Queue_ErrorType Queue_Dequeue(Queue_s* Queue , Queue_DataType* data);
 
 /**************************************************************************************************************************************
- *  Function : clearStack                                                                                                             *
- *  Param    : IN     : Name / stack                                                                                                  *
- *                      Type / Stack_s*                                                                                               *
+ *  Function : Queue_IsEmpty                                                                                                          *
+ *  Param    : IN     : Name / Queue                                                                                                  *
+ *                      Type / Queue_s*                                                                                               *
  *                      Desc / takes address of the created structure from the caller function                                        *
  *                                                                                                                                    *
  *             Output : Name / none                                                                                                   *
  *                                                                                                                                    *
- *  Return   : stackStatus_t                                                                                                          *
+ *  Return   : Queue_StatusType                                                                                                       *
  *                                                                                                                                    *
  *                                                                                                                                    *
- *  Desc     : This function return the stack to the initial state                                                                    *
+ *  Desc     : This function return wether the queue is empty or not                                                                  *
  *                                                                                                                                    *
  *                                                                                                                                    *
  *                                                                                                                                    *
  *************************************************************************************************************************************/
 
-stackStatus_t clearStack(Stack_s* stack);
+Queue_StatusType Queue_IsEmpty(Queue_s* Queue);
 
 /**************************************************************************************************************************************
- *  Function : StackTop                                                                                                               *
- *  Param    : IN     : Name / stack                                                                                                  *
- *                      Type / Stack_s*                                                                                               *
+ *  Function : Queue_IsFull                                                                                                           *
+ *  Param    : IN     : Name / Queue                                                                                                  *
+ *                      Type / Queue_s*                                                                                               *
  *                      Desc / takes address of the created structure from the caller function                                        *
- *           : IN     : Name / data                                                                                                   *
- *                      Type / dataEntry_t*                                                                                           *
- *                      Desc / takes the address of the variable to return the top to it                                              *
  *                                                                                                                                    *
  *             Output : Name / none                                                                                                   *
  *                                                                                                                                    *
- *  Return   : stackStatus_t                                                                                                          *
+ *  Return   : Queue_StatusType                                                                                                       *
  *                                                                                                                                    *
  *                                                                                                                                    *
- *  Desc     : This function returns the value of the top element of the stack                                                        *
+ *  Desc     : This function return wether the queue is full or not                                                                   *
  *                                                                                                                                    *
  *                                                                                                                                    *
  *                                                                                                                                    *
  *************************************************************************************************************************************/
 
-stackStatus_t StackTop(Stack_s* stack, dataEntry_t* data);
+Queue_StatusType Queue_IsFull(Queue_s* Queue);
 
 /**************************************************************************************************************************************
- *  Function : traverseStack                                                                                                          *
- *  Param    : IN     : Name / stack                                                                                                  *
- *                      Type / Stack_s*                                                                                               *
+ *  Function : Queue_GetSize                                                                                                          *
+ *  Param    : IN     : Name / Queue                                                                                                  *
+ *                      Type / Queue_s*                                                                                               *
  *                      Desc / takes address of the created structure from the caller function                                        *
- *           : IN     : Name / wantedFunction                                                                                         *
- *                      Type / functionPtr                                                                                            *
+ *                                                                                                                                    *
+ *             Output : Name / none                                                                                                   *
+ *                                                                                                                                    *
+ *  Return   : Queue_StatusType                                                                                                       *
+ *                                                                                                                                    *
+ *                                                                                                                                    *
+ *  Desc     : This function return the current size of the queue                                                                     *
+ *                                                                                                                                    *
+ *                                                                                                                                    *
+ *                                                                                                                                    *
+ *************************************************************************************************************************************/
+
+Queue_SizeType Queue_GetSize(Queue_s* Queue);
+
+/**************************************************************************************************************************************
+ *  Function : Queue_Clear                                                                                                            *
+ *  Param    : IN     : Name / Queue                                                                                                  *
+ *                      Type / Queue_s*                                                                                               *
+ *                      Desc / takes address of the created structure from the caller function                                        *
+ *                                                                                                                                    *
+ *             Output : Name / none                                                                                                   *
+ *                                                                                                                                    *
+ *  Return   : Queue_StatusType                                                                                                       *
+ *                                                                                                                                    *
+ *                                                                                                                                    *
+ *  Desc     : This function return the queue to the initial state                                                                    *
+ *                                                                                                                                    *
+ *                                                                                                                                    *
+ *                                                                                                                                    *
+ *************************************************************************************************************************************/
+
+Queue_ErrorType Queue_Clear(Queue_s* Queue);
+
+/**************************************************************************************************************************************
+ *  Function : Queue_Traverse                                                                                                         *
+ *  Param    : IN     : Name / Queue                                                                                                  *
+ *                      Type / Queue_s*                                                                                               *
+ *                      Desc / takes address of the created structure from the caller function                                        *
+ *           : IN     : Name / ptr                                                                                                    *
+ *                      Type / ptrToFunction                                                                                          *
  *                      Desc / takes the function wanted to be excuted on each element                                                *
  *                                                                                                                                    *
  *             Output : Name / none                                                                                                   *
  *                                                                                                                                    *
- *  Return   : stackStatus_t                                                                                                          *
+ *  Return   : Queue_ErrorType                                                                                                        *
  *                                                                                                                                    *
  *                                                                                                                                    *
  *  Desc     : This function go through each element and excute function passed to it from the caller function                        *
@@ -185,30 +282,16 @@ stackStatus_t StackTop(Stack_s* stack, dataEntry_t* data);
  *                                                                                                                                    *
  *************************************************************************************************************************************/
 
-stackStatus_t traverseStack(Stack_s* stack , functionPtr wantedFunction);
+Queue_ErrorType Queue_Traverse(Queue_s* Queue , ptrToFunction ptr);
 
-/**************************************************************************************************************************************
- *  Function : stackSize                                                                                                              *
- *  Param    : IN     : Name / stack                                                                                                  *
- *                      Type / Stack_s*                                                                                               *
- *                      Desc / takes address of the created structure from the caller function                                        *
- *                                                                                                                                    *
- *             Output : Name / none                                                                                                   *
- *                                                                                                                                    *
- *  Return   : stackStatus_t                                                                                                          *
- *                                                                                                                                    *
- *                                                                                                                                    *
- *  Desc     : This function return the current size of the stack                                                                     *
- *                                                                                                                                    *
- *                                                                                                                                    *
- *                                                                                                                                    *
- *************************************************************************************************************************************/
+ /**************************************************************************************************************************************/
 
-stackStatus_t stackSize(Stack_s* stack , stackSize_t* size);
 
-/*************************************************************************************************************************************/
+
+
+
+
+
+
 
 #endif
-
-
-

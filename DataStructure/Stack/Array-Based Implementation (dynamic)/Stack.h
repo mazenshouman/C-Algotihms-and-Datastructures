@@ -1,4 +1,4 @@
-#ifndef
+#ifndef __Stack__
 #define __Stack__
 
 /*std_types*/

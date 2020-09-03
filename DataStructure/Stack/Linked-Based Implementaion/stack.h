@@ -22,7 +22,7 @@ typedef uint8 stackStatus_t;
 typedef struct Node{
   dataEntry_t data;
   struct Node* nextNode;
-}StackNode_s;
+}stackNode_s;
 
 typedef struct stack{
   stackNode_s* stackTop;
@@ -33,8 +33,8 @@ stackStatus_t createStack(Stack_s* Stack);
 stackStatus_t pop(Stack_s* stack  , dataEntry_t* data);
 stackStatus_t push(Stack_s* stack  , dataEntry_t* data);
 stackStatus_t clearStack(Stack_s* stack);
-stackStatus_t traverseStack(Stack_t* stack , functionPtr wantedFunction);
-stackStatus_t stackSize(Stack_t* stack , stackSize_t* size);
+stackStatus_t traverseStack(Stack_s* stack , functionPtr wantedFunction);
+stackStatus_t stackSize(Stack_s* stack , stackSize_t* size);
 
 #endif
 

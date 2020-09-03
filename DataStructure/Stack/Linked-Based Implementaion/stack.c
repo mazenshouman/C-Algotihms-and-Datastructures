@@ -29,7 +29,7 @@ stackStatus_t pop(Stack_s* stack  , dataEntry_t* data){
     else{
       pTempNode = stack -> stackTop;
       stack -> stackTop = stack -> stackTop -> nextNode;
-      data* = pTempNode -> data;
+      *data = pTempNode -> data;
       free(pTempNode);
       --stack -> size;
     }
@@ -88,7 +88,7 @@ stackStatus_t StackTop(Stack_s* stack , dataEntry_t* data){
   return returnStatus;
 }
 
-stackStatus_t traverseStack(Stack_t* stack , functionPtr wantedFunction){
+stackStatus_t traverseStack(Stack_s* stack , functionPtr wantedFunction){
   stackStatus_t returnStatus=E_OK;
   stackNode_s * pTempNode = stack -> stackTop;
   if(stack==NULL){
@@ -103,6 +103,6 @@ stackStatus_t traverseStack(Stack_t* stack , functionPtr wantedFunction){
   return returnStatus;
 }
 
-stackStatus_t stackSize(Stack_t* stack , stackSize_t* size){
+stackStatus_t stackSize(Stack_s* stack , stackSize_t* size){
   size = stack-> size;
 }
